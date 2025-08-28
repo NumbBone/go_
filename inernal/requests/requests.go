@@ -43,7 +43,7 @@ func getInt(headers *headers.Headers, name string, defalVal int) int  {
 type Request struct {
 	RequestLine   RequestLine
 	Headers       *headers.Headers
-	Body 		  string
+	Body 		  []byte
 	ParserState   State
 }
 
@@ -108,7 +108,7 @@ for{
 		}
 
 		remain := min(lengthstr - len(r.Body) , len(curretData))
-		r.Body += string(curretData[:remain])
+		r.Body = append(r.Body, curretData[:remain]...)
 
 		read += remain
 	
@@ -140,7 +140,7 @@ func newRequest() *Request {
 	return &Request{
 		ParserState: initalized,
 		Headers: headers.NewHeaders(),
-		Body: "",
+		Body: 	[]byte{},
 	}
 }
 

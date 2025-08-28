@@ -34,5 +34,6 @@ func main() {
 		r.Headers.ForEach(func(name, value string) {
 			fmt.Printf("- %s: %s\n", name, value)
 		})
+		fmt.Print("- Body: ", string(r.Body),"\n")
 	}
 }
