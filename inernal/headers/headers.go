@@ -83,7 +83,7 @@ func (h *Headers) Parse(data []byte) ( int, bool, error) {
 			break 
 		}
 
-		if idx == 0{
+		if idx == 0 {
 			done = true
 			read += len(endOfLine)
 			break

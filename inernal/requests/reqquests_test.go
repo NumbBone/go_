@@ -61,7 +61,7 @@ func TestParseheaders(t *testing.T){
 	// Test: Standard Headers
 reader := &chunkReader{
 	data:            "GET / HTTP/1.1\r\nHost: localhost:42069\r\nUser-Agent: curl/7.81.0\r\nAccept: */*\r\n\r\n",
-	numBytesPerRead: 3,
+	numBytesPerRead: 5,
 }
 r, err := ReqFromReader(reader)
 require.NoError(t, err)
@@ -79,7 +79,7 @@ assert.Equal(t, "*/*", accept)
 // Test: Malformed Header
 reader = &chunkReader{
 	data:            "GET / HTTP/1.1\r\nHost localhost:42069\r\n\r\n",
-	numBytesPerRead: 3,
+	numBytesPerRead: 5,
 }
 r, err = ReqFromReader(reader)
 require.Error(t, err)
@@ -94,7 +94,7 @@ reader := &chunkReader{
 		"Content-Length: 13\r\n" +
 		"\r\n" +
 		"hello world!\n",
-	numBytesPerRead: 3,
+	numBytesPerRead: 5,
 }
 r, err := ReqFromReader(reader)
 require.NoError(t, err)
@@ -108,7 +108,7 @@ reader = &chunkReader{
 		"Content-Length: 20\r\n" +
 		"\r\n" +
 		"partial content",
-	numBytesPerRead: 3,
+	numBytesPerRead: 5,
 }
 r, err = ReqFromReader(reader)
 require.Error(t, err)
