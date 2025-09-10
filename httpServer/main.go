@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"Denis.test/inernal/headers"
 	"Denis.test/inernal/requests"
 	"Denis.test/inernal/responce"
 	"Denis.test/inernal/server"
@@ -15,21 +16,17 @@ import (
 const port = 42069
 
 func main() {
-	server, err := server.Serve(port, func(w io.Writer, req *requests.Request) *server.HandlerError{
-		if req.RequestLine.RequestTarget == "/yourproblem" {
+	server, err := server.Serve(port, func(w responce.Writer, req *requests.Request) {
+		headers := responce.GetDefaultHeaders(0)
 
-			return &server.HandlerError{
-				StatusCode: responce.BAD_REQUEST,
-				Message: "Your problem is not my problem\n",
-			}
+		if req.RequestLine.RequestTarget == "/yourproblem" {
+			w.WriteStatusLine(responce.BAD_REQUEST)
+			w.WriteHeaders(*headers)
 		} else if req.RequestLine.RequestTarget == "/myproblem" {
 
-			return &server.HandlerError{
-				StatusCode: responce.INTERNAL_SERVER_ERROR,
-				Message: "Woopsie, my bad\n",
 			}
 		} else {
-			w.Write([]byte("All good, frfr\n"))
+			
 		}
 		return nil
 	})
