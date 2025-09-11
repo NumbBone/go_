@@ -1,13 +1,12 @@
 package main
 
 import (
-	"io"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"Denis.test/inernal/headers"
 	"Denis.test/inernal/requests"
 	"Denis.test/inernal/responce"
 	"Denis.test/inernal/server"
@@ -15,20 +14,67 @@ import (
 
 const port = 42069
 
-func main() {
-	server, err := server.Serve(port, func(w responce.Writer, req *requests.Request) {
-		headers := responce.GetDefaultHeaders(0)
+func responce400() []byte{
+	return []byte(`<html>
+  <head>
+    <title>400 Bad Request</title>
+  </head>
+  <body>
+    <h1>Bad Request</h1>
+    <p>Your request honestly kinda sucked.</p>
+  </body>
+</html>`)
+}
 
+func responce500() []byte{
+	return []byte(`<html>
+  <head>
+    <title>500 Internal Server Error</title>
+  </head>
+  <body>
+    <h1>Internal Server Error</h1>
+    <p>Okay, you know what? This one is on me.</p>
+  </body>
+</html>`)
+}
+
+func responce200() []byte{
+	return []byte(`<html>
+  <head>
+	<title>200 OK</title>
+  </head>
+  <body>
+	<h1>Success!</h1>
+	<p>Your request was an absolute banger.</p>
+  </body>
+</html>`)
+}
+
+func main() {
+	server, err := server.Serve(port, func(w *responce.Writer, req *requests.Request) {
+		headers := responce.GetDefaultHeaders(0)
+		body := responce200()
+		stat := responce.OK
+
+		
 		if req.RequestLine.RequestTarget == "/yourproblem" {
-			w.WriteStatusLine(responce.BAD_REQUEST)
-			w.WriteHeaders(*headers)
+
+			stat = responce.BAD_REQUEST
+			body = responce400()
+
 		} else if req.RequestLine.RequestTarget == "/myproblem" {
 
-			}
-		} else {
+			stat = responce.INTERNAL_SERVER_ERROR
+			body = responce500()
 			
 		}
-		return nil
+
+			w.WriteStatusLine(stat)
+			headers.Replace("content-length",fmt.Sprintf("%d",len(body)))
+			headers.Replace("Content-Type", "text/plain")
+			w.WriteHeaders(*headers)
+			w.WriteBody(body)
+
 	})
 
 	if err != nil {
