@@ -71,7 +71,7 @@ func main() {
 
 			w.WriteStatusLine(stat)
 			headers.Replace("content-length",fmt.Sprintf("%d",len(body)))
-			headers.Replace("Content-Type", "text/plain")
+			headers.Replace("Content-Type", "text/html")
 			w.WriteHeaders(*headers)
 			w.WriteBody(body)
 
