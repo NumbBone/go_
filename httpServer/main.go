@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"Denis.test/inernal/requests"
@@ -67,6 +69,31 @@ func main() {
 			stat = responce.INTERNAL_SERVER_ERROR
 			body = responce500()
 			
+		} else if strings.HasPrefix(req.RequestLine.RequestTarget , "/httpbin/stream"){
+			target := req.RequestLine.RequestTarget
+			
+			req , err := http.Get("https://httpbin.org/" + target[len("/httpbin/") :])
+			if err != nil {
+				stat = responce.INTERNAL_SERVER_ERROR
+				body = responce500()
+			} else {
+				w.WriteStatusLine(responce.OK)
+				headers.Delete("Content-length")
+				headers.Set("transfer-encoding", "chunked")
+				w.WriteHeaders(*headers)
+
+					for {
+						data := make([]byte , 32)
+						n ,err := req.Body.Read(data)
+						if err != nil {
+							break
+						}
+						w.WriteChunkedBody(data[:n] , n)
+					}
+				w.WriteChunkedBodyDone()
+				return
+			}
+
 		}
 
 			w.WriteStatusLine(stat)

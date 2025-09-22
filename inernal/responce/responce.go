@@ -60,9 +60,34 @@ func (w *Writer) WriteHeaders(headers headers.Headers) error {
 
 	return err
 }
+
 func (w *Writer) WriteBody(p []byte) (int, error){
 	
 	n ,err := w.writer.Write(p)
 
 	return  n , err
+}
+
+
+func (w *Writer) WriteChunkedBody(p []byte , lent int) (int, error){
+	chunkSize := fmt.Sprintf("%x\r\n", lent)
+
+	w.writer.Write([]byte(chunkSize))
+	line ,err := w.writer.Write(p)
+	w.writer.Write([]byte("\r\n"))
+	if err != nil {
+		return line, err
+	}
+
+	return  line , nil
+}
+
+func (w *Writer) WriteChunkedBodyDone() (int, error) {
+	line , err := w.WriteBody([]byte("0\r\n\r\n"))
+
+	if err != nil {
+		return line, err
+	}
+
+	return line , nil
 }
